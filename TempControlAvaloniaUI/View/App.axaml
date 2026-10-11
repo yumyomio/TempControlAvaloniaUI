@@ -1,0 +1,11 @@
+﻿<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:semi="clr-namespace:Semi.Avalonia;assembly=Semi.Avalonia"
+             x:Class="TempControlAvaloniaUI.View.App"
+             RequestedThemeVariant="Dark"> <!-- Выбор темы: Dark или Light -->
+
+    <Application.Styles>
+        <!-- Подключаем стили SemiTheme -->
+        <semi:SemiTheme Locale="ru-RU" />
+    </Application.Styles>
+</Application>

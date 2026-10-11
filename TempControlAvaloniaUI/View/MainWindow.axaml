@@ -1,0 +1,152 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="using:TempControlAvaloniaUI.ViewModel"
+        x:DataType="vm:MainWindowViewModel"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="TempControlAvaloniaUI.MainWindow"
+        Title="TempControlAvaloniaUI"
+        Background="{DynamicResource SemiColorBackground0}">
+<ScrollViewer Padding="20">
+    <StackPanel Spacing="16">
+        <Border Classes="Card" Padding="16">
+            <Grid ColumnDefinitions="Auto,*,Auto">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                    <TextBlock Text="Климат контроль"
+                               FontSize="20" FontWeight="Bold"
+                               Foreground="{DynamicResource SemiColorText0}"/>
+
+                    <Border Background="{DynamicResource SemiColorPrimaryLight}"
+                            CornerRadius="4" Padding="6,2" VerticalAlignment="Center">
+                        <TextBlock Text="ESP32" FontSize="11" FontWeight="Bold" 
+                                       Foreground="{DynamicResource SemiColorPrimary}"/>
+                    </Border>
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="20" VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                            <TextBlock Text="Канал:" Foreground="{DynamicResource SemiColorText2}" VerticalAlignment="Center"/>
+                            <ComboBox SelectedIndex="{Binding SelectedTransportIndex}" Width="140">
+                                <ComboBoxItem Content="Wi-Fi (MQTT)"/>
+                                <ComboBoxItem Content="USB (Serial)"/>
+                            </ComboBox>
+                        </StackPanel>
+
+                        <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                            <TextBlock Text="Авто-режим:" Foreground="{DynamicResource SemiColorText2}" VerticalAlignment="Center"/>
+                            <ToggleSwitch IsChecked="{Binding IsAutoMode, Mode=TwoWay}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
+        </Border>
+        <Grid ColumnDefinitions="*, 16, *, 16, *">
+                
+                <!-- Температура -->
+                <Border Grid.Column="0" Classes="Card" Padding="16">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="ТЕМПЕРАТУРА" Foreground="{DynamicResource SemiColorText2}" FontSize="12" FontWeight="Bold"/>
+                        <StackPanel Orientation="Horizontal" Spacing="4">
+                            <TextBlock Text="{Binding CurrentTemperature, StringFormat='{}{0:F1}'}" 
+                                       FontSize="36" FontWeight="Bold" 
+                                       Foreground="{DynamicResource SemiColorDanger}"/>
+                            <TextBlock Text="°C" FontSize="20" VerticalAlignment="Bottom" Margin="0,0,0,4"
+                                       Foreground="{DynamicResource SemiColorDanger}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- Влажность -->
+                <Border Grid.Column="2" Classes="Card" Padding="16">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="ВЛАЖНОСТЬ" Foreground="{DynamicResource SemiColorText2}" FontSize="12" FontWeight="Bold"/>
+                        <StackPanel Orientation="Horizontal" Spacing="4">
+                            <TextBlock Text="{Binding CurrentHumidity, StringFormat='{}{0:F0}'}" 
+                                       FontSize="36" FontWeight="Bold" 
+                                       Foreground="{DynamicResource SemiColorPrimary}"/>
+                            <TextBlock Text="%" FontSize="20" VerticalAlignment="Bottom" Margin="0,0,0,4"
+                                       Foreground="{DynamicResource SemiColorPrimary}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- Давление -->
+                <Border Grid.Column="4" Classes="Card" Padding="16">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="ДАВЛЕНИЕ" Foreground="{DynamicResource SemiColorText2}" FontSize="12" FontWeight="Bold"/>
+                        <StackPanel Orientation="Horizontal" Spacing="4">
+                            <TextBlock Text="{Binding CurrentPressure, StringFormat='{}{0:F0}'}" 
+                                       FontSize="32" FontWeight="Bold" 
+                                       Foreground="{DynamicResource SemiColorSuccess}"/>
+                            <TextBlock Text="мм рт.ст." FontSize="14" VerticalAlignment="Bottom" Margin="0,0,0,6"
+                                       Foreground="{DynamicResource SemiColorSuccess}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+            </Grid>
+
+            <!-- 3. УПРАВЛЕНИЕ РЕЛЕ И УСТАВКА -->
+            <Border Classes="Card" Padding="16">
+                <Grid ColumnDefinitions="*, Auto">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Целевая температура (Уставка)" Foreground="{DynamicResource SemiColorText0}" FontWeight="SemiBold"/>
+                        <StackPanel Orientation="Horizontal" Spacing="16" VerticalAlignment="Center">
+                            <NumericUpDown Value="{Binding TargetTemperature, Mode=TwoWay}" 
+                                           Minimum="10" Maximum="40" Increment="0.5" 
+                                           Width="150" Classes="Large"/>
+                            <TextBlock Text="Допуск (Гистерезис): ±1.0 °C" 
+                                       Foreground="{DynamicResource SemiColorText2}" 
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                        <Button Content="Включить" 
+                                Command="{Binding TurnOnRelay}" 
+                                IsEnabled="{Binding !IsAutoMode}" 
+                                Classes="Success" 
+                                Theme="{StaticResource LightButton}"/>
+                        <Button Content="Выключить" 
+                                Command="{Binding TurnOffRelay}" 
+                                IsEnabled="{Binding !IsAutoMode}" 
+                                Classes="Danger" 
+                                Theme="{StaticResource LightButton}"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- 4. ОБЛАСТЬ ГРАФИКА ИСТОРИИ -->
+            <Border Classes="Card" Padding="16" Height="320">
+                <Grid RowDefinitions="Auto, *">
+                    <Grid ColumnDefinitions="*, Auto" Margin="0,0,0,16">
+                        <TextBlock Text="История измерений" 
+                                   FontSize="16" FontWeight="SemiBold" 
+                                   Foreground="{DynamicResource SemiColorText0}"/>
+                        
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4">
+                            <RadioButton Content="Час" GroupName="Range" IsChecked="True" 
+                                         Theme="{StaticResource ButtonRadioButton}" Classes="Small"/>
+                            <RadioButton Content="День" GroupName="Range" 
+                                         Theme="{StaticResource ButtonRadioButton}" Classes="Small"/>
+                            <RadioButton Content="Неделя" GroupName="Range" 
+                                         Theme="{StaticResource ButtonRadioButton}" Classes="Small"/>
+                            <RadioButton Content="Месяц" GroupName="Range" 
+                                         Theme="{StaticResource ButtonRadioButton}" Classes="Small"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <Border Grid.Row="1" 
+                            Background="{DynamicResource SemiColorFill0}" 
+                            CornerRadius="8" 
+                            BorderBrush="{DynamicResource SemiColorBorder}" 
+                            BorderThickness="1">
+                        <TextBlock Text="[ Область графика LiveCharts2 ]" 
+                                   HorizontalAlignment="Center" 
+                                   VerticalAlignment="Center" 
+                                   Foreground="{DynamicResource SemiColorText2}"/>
+                    </Border>
+                </Grid>
+            </Border>
+    </StackPanel>
+</ScrollViewer>    
+</Window>
